@@ -1,100 +1,113 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Link, graphql, StaticQuery } from 'gatsby'
-import PreviewCompatibleImage from './PreviewCompatibleImage'
+import React from "react";
+import PropTypes from "prop-types";
+import {Link, graphql, StaticQuery} from "gatsby";
+import PreviewCompatibleImage from "./PreviewCompatibleImage";
+import stylesheet from "./BlogRoll.module.less";
 
 class BlogRoll extends React.Component {
   render() {
-    const { data } = this.props
-    const { edges: posts } = data.allMarkdownRemark
-
+    const {data} = this.props;
+    const {edges: posts} = data.allMarkdownRemark;
+    const featured = posts.find(post => post.node.frontmatter.isFeaturedPost)
+      .node;
     return (
-      <div className="columns is-multiline">
-        {posts &&
-          posts.map(({ node: post }) => (
-            <div className="is-parent column is-6" key={post.id}>
-              <article
-                className={`blog-list-item tile is-child box notification ${
-                  post.frontmatter.featuredpost ? 'is-featured' : ''
-                }`}
-              >
-                <header>
-                  {post.frontmatter.featuredimage ? (
-                    <div className="featured-thumbnail">
-                      <PreviewCompatibleImage
-                        imageInfo={{
-                          image: post.frontmatter.featuredimage,
-                          alt: `featured image thumbnail for post ${
-                            post.title
-                          }`,
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                  <p className="post-meta">
+      <div>
+        <div className={stylesheet.cardFeaturedBackground}>
+          <Link className={stylesheet.cardFeatured} to={featured.fields.slug}>
+            <div className={stylesheet.cardImage}>
+              <PreviewCompatibleImage
+                imageInfo={{
+                  image: featured.frontmatter.featuredImage,
+                  alt: `featured image thumbnail for post ${featured.frontmatter.title}`
+                }}
+              />
+            </div>
+            <div className={stylesheet.cardInfo}>
+              <h5 className={stylesheet.cardCategory}>
+                {featured.frontmatter.tags[0]}
+              </h5>
+              <h1 className={stylesheet.cardTitle}>
+                {featured.frontmatter.title}
+              </h1>
+              <p className={stylesheet.cardExcerpt}>{featured.excerpt}</p>
+              <p className={stylesheet.readMore}>Read More </p>
+            </div>
+          </Link>
+        </div>
+        <div className={stylesheet.mustRead}>
+          <h2>Today's Must Reads</h2>
+          <div className={stylesheet.gridCol3}>
+            {posts &&
+              posts.map(
+                ({node: post}) =>
+                  !post.frontmatter.isFeaturedPost && (
                     <Link
-                      className="title has-text-primary is-size-4"
+                      className={stylesheet.post}
+                      style={
+                        process.env.NODE_ENV === "production" &&
+                        post.frontmatter.draft
+                          ? {display: "none"}
+                          : {}
+                      }
+                      key={post.id}
                       to={post.fields.slug}
                     >
-                      {post.frontmatter.title}
+                      <div className={stylesheet.featuredThumbnail}>
+                        <PreviewCompatibleImage
+                          imageInfo={{
+                            image: post.frontmatter.thumbnail,
+                            alt: `featured image thumbnail for post ${post.title}`
+                          }}
+                        />
+                      </div>
+                      <div className={stylesheet.postInformation}>
+                        <span className={stylesheet.postCategory}>
+                          {post.frontmatter.tags[0]}
+                        </span>
+                        <h4 className={stylesheet.postTitle}>
+                          {post.frontmatter.title}
+                        </h4>
+                      </div>
                     </Link>
-                    <span> &bull; </span>
-                    <span className="subtitle is-size-5 is-block">
-                      {post.frontmatter.date}
-                    </span>
-                  </p>
-                </header>
-                <p>
-                  {post.excerpt}
-                  <br />
-                  <br />
-                  <Link className="button" to={post.fields.slug}>
-                    Keep Reading →
-                  </Link>
-                </p>
-              </article>
-            </div>
-          ))}
+                  )
+              )}
+          </div>
+        </div>
       </div>
-    )
+    );
   }
 }
 
 BlogRoll.propTypes = {
   data: PropTypes.shape({
     allMarkdownRemark: PropTypes.shape({
-      edges: PropTypes.array,
-    }),
-  }),
-}
+      edges: PropTypes.array
+    })
+  })
+};
 
 export default () => (
   <StaticQuery
     query={graphql`
       query BlogRollQuery {
         allMarkdownRemark(
-          sort: { order: DESC, fields: [frontmatter___date] }
-          filter: { frontmatter: { templateKey: { eq: "blog-post" } } }
+          sort: {order: DESC, fields: [frontmatter___date]}
+          filter: {frontmatter: {templateKey: {eq: "blog-post"}}}
         ) {
           edges {
             node {
-              excerpt(pruneLength: 400)
+              excerpt(pruneLength: 70)
               id
               fields {
                 slug
               }
               frontmatter {
+                isFeaturedPost
                 title
+                draft
                 templateKey
                 date(formatString: "MMMM DD, YYYY")
-                featuredpost
-                featuredimage {
-                  childImageSharp {
-                    fluid(maxWidth: 120, quality: 100) {
-                      ...GatsbyImageSharpFluid
-                    }
-                  }
-                }
+                tags
               }
             }
           }
@@ -103,4 +116,4 @@ export default () => (
     `}
     render={(data, count) => <BlogRoll data={data} count={count} />}
   />
-)
+);

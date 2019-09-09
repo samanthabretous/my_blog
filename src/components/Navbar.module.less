@@ -1,0 +1,67 @@
+@import '../less/global-variables/all.less';
+
+.navbar {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: @white;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    z-index: 1;
+}
+
+.progressContainer {
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    height: 6px;
+}
+
+.progressBar {
+    height: 8px;
+    background: @yellow;
+    width: 0;
+}
+
+.logoWrapper {
+    height: 150px;
+    width: 180px;
+    z-index: 9;
+    justify-content: center;
+}
+
+.website {
+    position: fixed;
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+    top: 450px;
+    left: -70px;
+    color: #161616;
+    z-index: 3;
+    text-decoration: none;
+    @media screen and (max-width: 875px) {
+        display: none;
+    }
+}
+
+.navbarMenu {
+    margin-right: 2%;
+}
+
+.item {
+    color: @purple;
+    text-decoration: none;
+    background-image: none;
+    margin-left: 18px;
+}
+
+.subscribe {
+    border: 2px solid @purple;
+    border-radius: 6px;
+    padding: 6px;
+}
+

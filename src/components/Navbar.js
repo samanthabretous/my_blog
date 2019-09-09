@@ -1,98 +1,124 @@
-import React from 'react'
-import { Link } from 'gatsby'
-import github from '../img/github-icon.svg'
-import logo from '../img/logo.svg'
+import React from "react";
+import {Link} from "gatsby";
+import stylesheet from "./Navbar.module.less";
+import Logo from "./Logo";
+import cx from "classnames";
 
 const Navbar = class extends React.Component {
   constructor(props) {
-    super(props)
+    super();
     this.state = {
-      active: false,
-      navBarActiveClass: '',
-    }
+      logoWidth: 150
+    };
   }
 
-  toggleHamburger = () => {
-    // toggle the active boolean in the state
-    this.setState(
-      {
-        active: !this.state.active,
-      },
-      // after state has been updated,
-      () => {
-        // set the class in state for the navbar accordingly
-        this.state.active
-          ? this.setState({
-              navBarActiveClass: 'is-active',
-            })
-          : this.setState({
-              navBarActiveClass: '',
-            })
+  componentDidMount() {
+    const {showProgressBar} = this.props;
+    const growShrinkLogo = () => {
+      let width = this.state.logoWidth;
+      if (
+        document.body.scrollTop > 5 ||
+        document.documentElement.scrollTop > 5
+      ) {
+        width = 80;
+      } else {
+        width = 150;
       }
-    )
+      this.setState({logoWidth: width});
+    };
+    const runProgressBar = () => {
+      var winScroll =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      var height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      var scrolled = (winScroll / height) * 100;
+      document.getElementById("myBar").style.width = scrolled + "%";
+    };
+
+    window.onscroll = function() {
+      growShrinkLogo();
+      showProgressBar && runProgressBar();
+    };
   }
+  // componentDidMount() {
+  //   // Get all "navbar-burger" elements
+  //   const $navbarBurgers = Array.prototype.slice.call(
+  //     document.querySelectorAll(".navbar-burger"),
+  //     0
+  //   );
+  //   // Check if there are any navbar burgers
+  //   if ($navbarBurgers.length > 0) {
+  //     // Add a click event on each of them
+  //     $navbarBurgers.forEach(el => {
+  //       el.addEventListener("click", () => {
+  //         // Get the target from the "data-target" attribute
+  //         const target = el.dataset.target;
+  //         const $target = document.getElementById(target);
+
+  //         // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+  //         el.classList.toggle("is-active");
+  //         $target.classList.toggle("is-active");
+  //       });
+  //     });
+  //   }
+  // }
 
   render() {
+    const {logoWidth} = this.state;
+    const {showProgressBar} = this.props;
     return (
       <nav
-        className="navbar is-transparent"
+        className={stylesheet.navbar}
+        style={{
+          height: showProgressBar ? "72px" : "60px"
+        }}
         role="navigation"
         aria-label="main-navigation"
       >
-        <div className="container">
-          <div className="navbar-brand">
-            <Link to="/" className="navbar-item" title="Logo">
-              <img src={logo} alt="Kaldi" style={{ width: '88px' }} />
-            </Link>
-            {/* Hamburger menu */}
-            <div
-              className={`navbar-burger burger ${this.state.navBarActiveClass}`}
-              data-target="navMenu"
-              onClick={() => this.toggleHamburger()}
-            >
-              <span />
-              <span />
-              <span />
-            </div>
+        {this.props.showProgressBar && (
+          <div className={stylesheet.progressContainer}>
+            <div className={stylesheet.progressBar} id="myBar"></div>
           </div>
-          <div
-            id="navMenu"
-            className={`navbar-menu ${this.state.navBarActiveClass}`}
+        )}
+        <div>
+          <Link
+            to="/"
+            className={stylesheet.logoWrapper}
+            title="Samantha Bretous Logo"
+            style={{
+              height: logoWidth === 150 ? 150 : 60,
+              transition: `height 500ms ease`
+            }}
           >
-            <div className="navbar-start has-text-centered">
-              <Link className="navbar-item" to="/about">
-                About
-              </Link>
-              <Link className="navbar-item" to="/products">
-                Products
-              </Link>
-              <Link className="navbar-item" to="/blog">
-                Blog
-              </Link>
-              <Link className="navbar-item" to="/contact">
-                Contact
-              </Link>
-              <Link className="navbar-item" to="/contact/examples">
-                Form Examples
-              </Link>
-            </div>
-            <div className="navbar-end has-text-centered">
-              <a
-                className="navbar-item"
-                href="https://github.com/netlify-templates/gatsby-starter-netlify-cms"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="icon">
-                  <img src={github} alt="Github" />
-                </span>
-              </a>
-            </div>
-          </div>
+            <Logo color="#2e307c" width={logoWidth} />
+          </Link>
+          <Link
+            to="/"
+            className={stylesheet.website}
+            title="samanthabretous.com"
+          >
+            samanthabretous.com
+          </Link>
+        </div>
+
+        <div className={stylesheet.navbarMenu}>
+          <Link className={stylesheet.item} to="/blog">
+            BLOG
+          </Link>
+          <Link className={stylesheet.item} to="/contact">
+            CONTACT
+          </Link>
+          <a
+            className={cx(stylesheet.item, stylesheet.subscribe)}
+            href="http://eepurl.com/dF-xnP"
+          >
+            SUBSCRIBE
+          </a>
         </div>
       </nav>
-    )
+    );
   }
-}
+};
 
-export default Navbar
+export default Navbar;
